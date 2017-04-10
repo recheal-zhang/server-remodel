@@ -17,8 +17,8 @@ int main(){
 
     INETAddr _inetAddr(IPADDRESS, PORT);
     SOCKAcceptor sockAcceptor;
-    sockAcceptor.bindListen(_inetAddr);
-
+    //sockAcceptor.bindListen(_inetAddr);
+    sockAcceptor.sockBindListen();
     Epoll epollContrller;
     epollContrller.getSockAcceptorInfo(&sockAcceptor);
     epollContrller.getThreadPoolInfo(&threadPool);

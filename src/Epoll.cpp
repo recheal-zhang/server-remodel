@@ -13,10 +13,10 @@
 #include "ThreadPool.h"
 #include "INETAddr.h"
 
-Epoll::Epoll(){
-    memset(buf, 0, RECVMAXSIZE);
-
-    _epollfd = epoll_create(FDSIZE);
+Epoll::Epoll():
+    _epollfd(epoll_create(FDSIZE))
+{
+    std::cout << "epollfd" << _epollfd << std::endl;
 }
 
 Epoll::~Epoll(){
@@ -26,6 +26,7 @@ void Epoll::getSockAcceptorInfo(SOCKAcceptor *sockAcceptor){
     addEvent(_sockAcceptor->_sockfd, EPOLLIN | EPOLLET);
     _sockfd = _sockAcceptor->_sockfd;
 
+    memset(buf, 0, RECVMAXSIZE);
 }
 bool Epoll::getThreadPoolInfo(ThreadPool *pool){
     if(!pool){
@@ -42,6 +43,7 @@ void Epoll::monitor(){
     int ret = 0;
     while(true){
         ret = epoll_wait(_epollfd, events, EPOLLEVENTS, TIMEOUT);
+        std::cout << "epollwait =" << ret << std::endl;
         handleEvents(ret, _sockfd);
     }
 }
@@ -52,8 +54,10 @@ void Epoll::handleEvents(int eventNum, int listenfd){
         fd = events[i].data.fd;
 
         if((fd == listenfd) && (events[i].events & EPOLLIN)){
-            std::cout << "accept listenfd done" << std::endl;
+            std::cout << "accept listenfd " << std::endl;
             handleAccept(listenfd);
+
+            std::cout << "accept listenfd done" << std::endl;
         }
 
         else if(events[i].events & EPOLLIN){
@@ -71,7 +75,7 @@ void Epoll::handleEvents(int eventNum, int listenfd){
                 close(fd);
             }
             else{
-                _pool->_mutex.lock();
+                std::cout << "come in send msg" << std::endl;
                 threadMsg msg;
                 msg.epollfd = _epollfd;
                 msg.fd = fd;
@@ -79,7 +83,7 @@ void Epoll::handleEvents(int eventNum, int listenfd){
                 msg.event = events[i];
 
                 _pool->addTaskToQueue(msg);
-                _pool->_mutex.unlock();
+                std::cout << "come out send msg" << std::endl;
             }
         }
 

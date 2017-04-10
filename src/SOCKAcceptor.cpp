@@ -4,12 +4,14 @@
  * */
 
 #include <iostream>
+#include <string>
 
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <fcntl.h>
+#include <string.h>
 
 #include "SOCKAcceptor.h"
 #include "DefineVal.h"
@@ -32,8 +34,29 @@ SOCKAcceptor::SOCKAcceptor(){
 
 }
 
+void SOCKAcceptor::sockBindListen(){
+    struct sockaddr_in servaddr;
+    bzero(&servaddr, sizeof(servaddr));
+    servaddr.sin_family = AF_INET;
+    inet_pton(AF_INET, IPADDRESS, &servaddr.sin_addr);
+    servaddr.sin_port = htons(PORT);
+    if(bind(_sockfd, (struct sockaddr*)&servaddr,
+                sizeof(servaddr)) == -1){
+#ifdef DEBUG
+        std::cout << "bind error" << std::endl;
+#endif /*DEBUG*/
+        return;
+    }
+
+    listen(_sockfd, LISTENQ);
+
+}
+
 void SOCKAcceptor::bindListen(const INETAddr &sockAddr){
     //Associate address with endpoint.
+    std::cout << "addr:" << sockAddr.getAddr() << std::endl;
+    std::cout << "port" << sockAddr.getPort() << std::endl;
+    std::cout << "size:" << sockAddr.getSize() << std::endl;
     bind(_sockfd,
             sockAddr.getAddr(),
             sockAddr.getSize());
@@ -51,7 +74,7 @@ int SOCKAcceptor::cliAccept(){
     struct sockaddr_in cliaddr;
     socklen_t cliaddrlen;
     std::cout << "accept in" << std::endl;
-    int clifd = accept(_sockfd, (struct sockaddr *)&cliaddr, &cliaddrlen);
+     int clifd = accept(_sockfd, (struct sockaddr *)&cliaddr, &cliaddrlen);
     return clifd;
 }
 

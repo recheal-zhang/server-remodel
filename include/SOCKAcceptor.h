@@ -20,6 +20,7 @@ class SOCKAcceptor{
         SOCKAcceptor();
         ~SOCKAcceptor(){close(_sockfd);}
 
+        void sockBindListen();
         void bindListen(const INETAddr &sockAddr);
         //Accept a connection and initialize the <stream>
         int cliAccept();
