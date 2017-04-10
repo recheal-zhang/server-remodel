@@ -9,6 +9,8 @@
 #include <pthread.h>
 #include "NonCopyable.h"
 
+class Condition;
+
 class MutexLock : public NonCopyable{
     public:
         MutexLock();
@@ -19,6 +21,7 @@ class MutexLock : public NonCopyable{
 
     private:
         pthread_mutex_t _mutex;
+        friend class Condition;
 };
 
 #endif /*_MUTEXLOCK_H_*/

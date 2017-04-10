@@ -12,11 +12,15 @@
 
 
 class INETAddr;
+class Epoll;
 
 class SOCKAcceptor{
+        friend class Epoll;
     public:
-        SOCKAcceptor(const INETAddr &sockAddr);
+        SOCKAcceptor();
         ~SOCKAcceptor(){close(_sockfd);}
+
+        void bindListen(const INETAddr &sockAddr);
         //Accept a connection and initialize the <stream>
         int cliAccept();
 

@@ -15,8 +15,9 @@
 #include "DefineVal.h"
 #include "INETAddr.h"
 
-SOCKAcceptor::SOCKAcceptor(const INETAddr &sockAddr){
+SOCKAcceptor::SOCKAcceptor(){
     _sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    std::cout << "in sockacc : " << _sockfd << std::endl;
 
 #ifdef DEBUG
     if(_sockfd == -1){
@@ -29,6 +30,9 @@ SOCKAcceptor::SOCKAcceptor(const INETAddr &sockAddr){
     fcntl(_sockfd, F_SETFL, flags | O_NONBLOCK);
 #endif /*NONBLOCK*/
 
+}
+
+void SOCKAcceptor::bindListen(const INETAddr &sockAddr){
     //Associate address with endpoint.
     bind(_sockfd,
             sockAddr.getAddr(),
@@ -36,6 +40,9 @@ SOCKAcceptor::SOCKAcceptor(const INETAddr &sockAddr){
 
     //Make endpoint listen for connections
     listen(_sockfd, LISTENQ);
+
+    std::cout << "listenfd in SOCKACCEPTOR= " << _sockfd << std::endl;
+
 }
 
 int SOCKAcceptor::cliAccept(){
@@ -44,8 +51,8 @@ int SOCKAcceptor::cliAccept(){
     struct sockaddr_in cliaddr;
     socklen_t cliaddrlen;
     int clifd = accept(_sockfd, (struct sockaddr *)&cliaddr, &cliaddrlen);
-
-    return 0;
+    std::cout << "accept in" << std::endl;
+    return clifd;
 }
 
 int SOCKAcceptor::getSockfd() const{

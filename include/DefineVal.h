@@ -15,6 +15,7 @@
 #define FDSIZE 1000
 #define EPOLLEVENTS 100
 #define MAXTHREADNUM 2000
+#define TIMEOUT 500
 #endif /*_DEFINEVAL_H_*/
 
 
