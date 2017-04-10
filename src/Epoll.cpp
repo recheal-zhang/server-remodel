@@ -17,21 +17,15 @@ Epoll::Epoll(){
     memset(buf, 0, RECVMAXSIZE);
 
     _epollfd = epoll_create(FDSIZE);
-
-    INETAddr _inetAddr(IPADDRESS, PORT);
-    SOCKAcceptor sockAcceptor;
-    sockAcceptor.bindListen(_inetAddr);
-    _sockAcceptor = &sockAcceptor;
-
-    addEvent(_sockAcceptor->_sockfd, EPOLLIN | EPOLLET);
-    _sockfd = _sockAcceptor->_sockfd;
-
 }
 
 Epoll::~Epoll(){
 }
 void Epoll::getSockAcceptorInfo(SOCKAcceptor *sockAcceptor){
     _sockAcceptor = sockAcceptor;
+    addEvent(_sockAcceptor->_sockfd, EPOLLIN | EPOLLET);
+    _sockfd = _sockAcceptor->_sockfd;
+
 }
 bool Epoll::getThreadPoolInfo(ThreadPool *pool){
     if(!pool){

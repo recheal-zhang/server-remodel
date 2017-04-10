@@ -50,8 +50,8 @@ int SOCKAcceptor::cliAccept(){
     //accept(_sockfd, struct sockaddr*, socklen_t*)
     struct sockaddr_in cliaddr;
     socklen_t cliaddrlen;
-    int clifd = accept(_sockfd, (struct sockaddr *)&cliaddr, &cliaddrlen);
     std::cout << "accept in" << std::endl;
+    int clifd = accept(_sockfd, (struct sockaddr *)&cliaddr, &cliaddrlen);
     return clifd;
 }
 
