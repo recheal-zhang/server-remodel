@@ -19,7 +19,6 @@
 
 SOCKAcceptor::SOCKAcceptor(){
     _sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    std::cout << "in sockacc : " << _sockfd << std::endl;
 
 #ifdef DEBUG
     if(_sockfd == -1){

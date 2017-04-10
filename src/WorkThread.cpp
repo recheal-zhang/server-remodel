@@ -41,7 +41,6 @@ bool WorkThread::registerThreadPool(ThreadPool *pool){
         return false;
     }
 
-        std::cout <<"register" << std::endl;
     _pool = pool;
     return true;
 }
