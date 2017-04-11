@@ -11,6 +11,7 @@
 #include "NonCopyable.h"
 #include "DefineVal.h"
 #include "SOCKAcceptor.h"
+#include "DefineVal.h"
 
 class Util;
 class ThreadPool;
@@ -31,10 +32,13 @@ class Epoll : public NonCopyable{
 
         void handleEvents(int eventNum, int listenfd);
         void handleAccept(int listenfd);
+
+        int getEpollfd() const;
     private:
         int _epollfd;
         struct epoll_event events[EPOLLEVENTS];
         char buf[RECVMAXSIZE];
+        struct threadMsg _threadMsg;
         int _sockfd;
         SOCKAcceptor*_sockAcceptor;
 

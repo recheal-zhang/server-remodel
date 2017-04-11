@@ -5,9 +5,12 @@
 #include <iostream>
 
 #include <unistd.h>
+#include <sys/epoll.h>
 
 #include "WorkThread.h"
 #include "ThreadPool.h" // ?
+#include "SockConnector.h"
+#include "Util.h"
 
 
 void WorkThread::run(){
@@ -16,13 +19,38 @@ void WorkThread::run(){
         threadMsg msg;
         msg = _pool->getTaskFromQueue();
 
-        int epollfd = msg.epollfd;
-        int fd = msg.fd;
-        char *buf = msg.buf;
-        struct epoll_event event = msg.event;
+//        int epollfd = msg.epollfd;
+//        int fd = msg.fd;
+//        char *buf = msg.buf;
+//        struct epoll_event event = msg.event;
+//
+//        event.events = EPOLLOUT;
+//        epoll_ctl(epollfd, EPOLL_CTL_MOD, fd, &event);
 
-        event.events = EPOLLOUT;
-        epoll_ctl(epollfd, EPOLL_CTL_MOD, fd, &event);
+        if(msg.isClientQuery == true){//come from client
+            msg.isClientQuery = false;
+            //TODO:send to server2
+            int server2fd = msg.svrProMsg.serverConnectFd;
+            //TODO: write
+            Util::writeMsgToSock(server2fd,
+                    &msg,
+                    sizeof(msg));
+        }
+        else{//come from server2
+            //TODO:send to server2 & send to client if 10
+            int server2fd = msg.svrProMsg.serverConnectFd;
+            int count = msg.svrProMsg.count;
+            if(count == 10){//send msg to client
+                Util::writeMsgToSock(msg.cliMsg.clientAcceptFd,
+                        &msg,
+                        sizeof(msg));
+            }else if(count < 10){//send msg to server2
+                Util::writeMsgToSock(
+                        server2fd,
+                        &msg,
+                        sizeof(msg));
+            }
+        }
 
         //core worker
 //        int nwrite;

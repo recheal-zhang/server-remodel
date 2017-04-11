@@ -12,6 +12,7 @@
 #include "Util.h"
 #include "ThreadPool.h"
 #include "INETAddr.h"
+#include "SockConnector.h"
 
 #include "Log.h"
 
@@ -22,6 +23,12 @@ Epoll::Epoll():
 
 Epoll::~Epoll(){
 }
+
+int Epoll::getEpollfd() const{
+    return _epollfd;
+}
+
+
 void Epoll::getSockAcceptorInfo(SOCKAcceptor *sockAcceptor){
     _sockAcceptor = sockAcceptor;
     addEvent(_sockAcceptor->_sockfd, EPOLLIN | EPOLLET);
@@ -60,7 +67,7 @@ void Epoll::handleEvents(int eventNum, int listenfd){
         else if(events[i].events & EPOLLIN){
             //TODO: add query num
             int nread;
-            if((nread = read(fd, buf, RECVMAXSIZE)) < 0){
+            if((nread = read(fd, &_threadMsg, sizeof(_threadMsg))) < 0){
 #ifdef DEBUG
                 std::cout << "read error" << std::endl;
 #endif /*DEBUG*/
@@ -72,25 +79,37 @@ void Epoll::handleEvents(int eventNum, int listenfd){
                 close(fd);
             }
             else{
-                //TODO: if buf should be msg buf, write log
-                Log *logInstance = Log::getInstance();
-                logInstance->writeLog(buf,
-                        __FILE__,
-                        __LINE__,
-                        __DATE__,
-                        __TIME__);
-//                std::cout << "logVecSize=" <<
+                struct threadMsg tempMsg;
+                if(_threadMsg.isClientQuery == true){
+                     //TODO: if buf should be msg buf, write log
+                     //client come in
+                    Log *logInstance = Log::getInstance();
+                    logInstance->writeLog(buf,
+                            __FILE__,
+                            __LINE__,
+                            __DATE__,
+                            __TIME__);
+                    tempMsg.cliMsg.seqId = _threadMsg.cliMsg.seqId;
+                    tempMsg.cliMsg.clientAcceptFd = fd;
+                    tempMsg.cliMsg.cost = _threadMsg.cliMsg.cost;
+
+                    //TODO: add server2
+                    tempMsg.svrProMsg.serverConnectFd = SockConnector::_sockfd;
+                    tempMsg.svrProMsg.count = 1;
+
+                    tempMsg.isClientQuery = true;
+                }
+                else{//come from server2
+                    tempMsg = _threadMsg;
+                }
+               //                std::cout << "logVecSize=" <<
 //                    logInstance->getLogVecSize() <<
 //                    std::endl;
 
+                tempMsg.epollfd = _epollfd;
+                tempMsg.event = events[i];
 
-                threadMsg msg;
-                msg.epollfd = _epollfd;
-                msg.fd = fd;
-                msg.buf = buf;
-                msg.event = events[i];
-
-                _pool->addTaskToQueue(msg);
+                _pool->addTaskToQueue(tempMsg);
             }
         }
 

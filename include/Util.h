@@ -8,8 +8,10 @@
 
 #include <string>
 #include <sstream>
+#include <iostream>
 
 #include <fcntl.h>
+#include <unistd.h>
 
 class Util{
     public:
@@ -31,6 +33,15 @@ class Util{
                 << "[FILE]:" << file << "\t"
                 << "[LINE]:" << line << "\n";
             return ss.str();
+        }
+
+        static void writeMsgToSock(int fd, void *buf, size_t len){
+            int nwrite;
+            if((nwrite = write(fd, buf, len)) == -1){
+#ifdef DEBUG
+                std::cout << "write error" << std::endl;
+#endif /*DEBUG*/
+            }
         }
 
 };

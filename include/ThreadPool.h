@@ -15,13 +15,7 @@
 #include "WorkThread.h"
 #include "MutexLock.h"
 #include "Condition.h"
-
-struct threadMsg{
-    int epollfd;
-    int fd;
-    char *buf;
-    struct epoll_event event;
-};
+#include "DefineVal.h"
 
 class Epoll;
 
