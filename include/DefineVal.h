@@ -16,6 +16,9 @@
 #define EPOLLEVENTS 100
 #define MAXTHREADNUM 10
 #define TIMEOUT 500
+
+#define LOGTHREADSLEEPTIME 20
+
 #endif /*_DEFINEVAL_H_*/
 
 

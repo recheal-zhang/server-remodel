@@ -15,6 +15,7 @@
 class Util;
 class ThreadPool;
 class SOCKAcceptor;
+class WorkThread;
 class Epoll : public NonCopyable{
     public:
         Epoll();

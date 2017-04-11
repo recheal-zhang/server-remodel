@@ -13,6 +13,8 @@
 #include "ThreadPool.h"
 #include "INETAddr.h"
 
+#include "Log.h"
+
 Epoll::Epoll():
     _epollfd(epoll_create(FDSIZE))
 {
@@ -70,6 +72,18 @@ void Epoll::handleEvents(int eventNum, int listenfd){
                 close(fd);
             }
             else{
+                //TODO: if buf should be msg buf, write log
+                Log *logInstance = Log::getInstance();
+                logInstance->writeLog(buf,
+                        __FILE__,
+                        __LINE__,
+                        __DATE__,
+                        __TIME__);
+//                std::cout << "logVecSize=" <<
+//                    logInstance->getLogVecSize() <<
+//                    std::endl;
+
+
                 threadMsg msg;
                 msg.epollfd = _epollfd;
                 msg.fd = fd;
@@ -82,10 +96,24 @@ void Epoll::handleEvents(int eventNum, int listenfd){
 
         else if(events[i].events & EPOLLOUT){
             //TODO: buf is NULL
+            int nwrite;
+            if((nwrite = write(fd, buf, strlen(buf))) < 0){
+#ifdef DEBUG
+                std::cout << "write error" << std::endl;
+#endif /*DEBUG*/
+                deleteEvent(fd, EPOLLOUT);
+                close(fd);
+            }
+            else{
+                modifyEvent(fd, EPOLLIN);
+            }
         }
 
-        else if(events[i].events & EPOLLERR){
-            //TODO: how?
+        else if((events[i].events & EPOLLERR) || (events[i].events & EPOLLHUP)){
+#ifdef DEBUG
+            std::cout << "epoll error" << std::endl;
+#endif /*DEBUG*/
+            close(fd);
         }
     }
 }

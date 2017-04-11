@@ -21,15 +21,20 @@ void WorkThread::run(){
         char *buf = msg.buf;
         struct epoll_event event = msg.event;
 
-        //core worker
-        int nwrite;
-        if((nwrite = write(fd, buf, sizeof(buf))) == -1){
-#ifdef DEBUG
-            std::cout << "write error" << std::endl;
-#endif /*DEBUG*/
+        event.events = EPOLLOUT;
+        epoll_ctl(epollfd, EPOLL_CTL_MOD, fd, &event);
 
-            //TODO: delete_event(epollfd, fd, EPOLLIN);
-        }
+        //core worker
+//        int nwrite;
+//        if((nwrite = write(fd, buf, sizeof(buf))) == -1){
+//#ifdef DEBUG
+//            std::cout << "write error" << std::endl;
+//#endif /*DEBUG*/
+//
+//            //TODO: delete_event(epollfd, fd, EPOLLIN);
+//            epoll_ctl(epollfd, EPOLL_CTL_DEL, fd, &event);
+//        }
+//
     }
 }
 
